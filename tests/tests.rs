@@ -526,19 +526,17 @@ fn test_extension() {
 
     te.assert_output(&["--extension", "foo2"], "one/two/C.Foo2");
 
-
     let te2 = TestEnv::new(&[], &["spam.bar.baz", "egg.bar.baz", "yolk.bar.baz.sig"]);
 
     te2.assert_output(
         &["--extension", ".bar.baz"],
         "spam.bar.baz
-        egg.bar.baz"
+        egg.bar.baz",
     );
 
     te2.assert_output(&["--extension", "sig"], "yolk.bar.baz.sig");
 
     te2.assert_output(&["--extension", "bar.baz.sig"], "yolk.bar.baz.sig");
-
 }
 
 /// Symlinks misc
