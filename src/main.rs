@@ -151,8 +151,12 @@ fn main() {
                 .collect(),
         },
         extensions: matches.values_of("extension").map(|exts| {
-            exts.map(|e| e.trim_left_matches('.').to_lowercase())
-                .collect()
+            exts.map(|e| {
+                let mut s = String::with_capacity(e.len() + 1);
+                s.push_str(".");
+                s.push_str(&e.trim_left_matches('.').to_lowercase());
+                s
+            }).collect()
         }),
         command,
         exclude_patterns: matches

@@ -215,9 +215,7 @@ pub fn scan(path_vec: &[PathBuf], pattern: Arc<Regex>, config: Arc<FdOptions>) {
             // Filter out unwanted extensions.
             if let Some(ref filter_exts) = config.extensions {
                 let os_path = entry_path.to_string_lossy().to_lowercase();
-                let is_path_ext = |ref x: &String| os_path.ends_with(&(String::from(".") + &x));
-
-                if !filter_exts.iter().any(is_path_ext) {
+                if !filter_exts.iter().any(|x| os_path.ends_with(x)) {
                     return ignore::WalkState::Continue;
                 }
             }
