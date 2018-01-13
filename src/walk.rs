@@ -11,9 +11,11 @@ extern crate ctrlc;
 use exec;
 use fshelper;
 use internal::{error, FdOptions, EXITCODE_SIGINT, MAX_BUFFER_LENGTH};
+use internal::osstr_ends_with_case_insensitive;
 use output;
 
 use std::process;
+use std::ffi::OsStr;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -214,8 +216,11 @@ pub fn scan(path_vec: &[PathBuf], pattern: Arc<Regex>, config: Arc<FdOptions>) {
 
             // Filter out unwanted extensions.
             if let Some(ref filter_exts) = config.extensions {
-                let os_path = entry_path.to_string_lossy().to_lowercase();
-                if !filter_exts.iter().any(|x| os_path.ends_with(x)) {
+                let os_path: &OsStr = entry_path.as_ref();
+                if !filter_exts
+                    .iter()
+                    .any(|x| osstr_ends_with_case_insensitive(os_path, x))
+                {
                     return ignore::WalkState::Continue;
                 }
             }

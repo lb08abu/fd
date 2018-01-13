@@ -7,9 +7,11 @@
 // according to those terms.
 
 use std::collections::HashSet;
+use std::ffi::OsStr;
 use std::process;
 use std::time;
 use std::io::Write;
+use std::ascii::AsciiExt;
 
 use exec::CommandTemplate;
 use lscolors::LsColors;
@@ -98,6 +100,29 @@ fn expr_has_uppercase_char(expr: &Expr) -> bool {
         Expr::Concat(ref es) => es.iter().any(expr_has_uppercase_char),
         Expr::Alternate(ref es) => es.iter().any(expr_has_uppercase_char),
         _ => false,
+    }
+}
+
+/// Determine if an os string ends with another string (case insensitive).
+pub fn osstr_ends_with_case_insensitive(o: &OsStr, ext: &str) -> bool {
+    #[cfg(unix)]
+    {
+        use std::os::unix::ffi::OsStrExt;
+        o.as_bytes()
+            .iter()
+            .rev()
+            .zip(ext.as_bytes().iter().rev())
+            .all(|(a, b)| a.eq_ignore_ascii_case(&b))
+    }
+
+    #[cfg(windows)]
+    {
+        use std::os::windows::ffi::OsStrExt;
+        use std::char::decode_utf16;
+
+        decode_utf16(o.encode_wide().rev())
+            .zip(x.chars().rev())
+            .all(|(a, b)| a.unwrap_or(false, |c| c.eq_ignore_ascii_case(&b)))
     }
 }
 
