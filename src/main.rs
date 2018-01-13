@@ -25,7 +25,9 @@ mod app;
 mod exec;
 mod internal;
 mod output;
+mod utils;
 mod walk;
+
 
 #[cfg(windows)]
 mod windows;
