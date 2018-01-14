@@ -15,7 +15,6 @@ use utils::path_has_any_extension;
 use output;
 
 use std::process;
-use std::ffi::OsStr;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -216,7 +215,7 @@ pub fn scan(path_vec: &[PathBuf], pattern: Arc<Regex>, config: Arc<FdOptions>) {
 
             // Filter out unwanted extensions.
             if let Some(ref filter_exts) = config.extensions {
-                if !path_has_any_extension(entry_path, filter_exts.into_iter()) {
+                if !path_has_any_extension(entry_path, filter_exts) {
                     return ignore::WalkState::Continue;
                 }
             }

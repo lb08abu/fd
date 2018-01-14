@@ -28,7 +28,6 @@ mod output;
 mod utils;
 mod walk;
 
-
 #[cfg(windows)]
 mod windows;
 

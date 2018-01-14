@@ -7,11 +7,9 @@
 // according to those terms.
 
 use std::collections::HashSet;
-use std::ffi::OsStr;
 use std::process;
 use std::time;
 use std::io::Write;
-use std::ascii::AsciiExt;
 
 use exec::CommandTemplate;
 use lscolors::LsColors;

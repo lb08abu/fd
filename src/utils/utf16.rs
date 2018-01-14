@@ -10,23 +10,28 @@ use std::iter::{Peekable, Rev};
 
 #[derive(Debug)]
 pub struct ReverseUtf16Iterator<'a, I>
-    where I: 'a + DoubleEndedIterator<Item = &'a u16>
+where
+    I: 'a + DoubleEndedIterator<Item = &'a u16>,
 {
     it: Peekable<Rev<I>>,
     nx: Option<u16>,
 }
 
-impl <'a, I> ReverseUtf16Iterator<'a, I>
-    where I: DoubleEndedIterator<Item = &'a u16>
+impl<'a, I> ReverseUtf16Iterator<'a, I>
+where
+    I: DoubleEndedIterator<Item = &'a u16>,
 {
     pub fn new(it: I) -> Self {
-        ReverseUtf16Iterator {it: it.rev().peekable(), nx: None}
+        ReverseUtf16Iterator {
+            it: it.rev().peekable(),
+            nx: None,
+        }
     }
 }
 
-
 impl<'a, I> Iterator for ReverseUtf16Iterator<'a, I>
-    where I: DoubleEndedIterator<Item = &'a u16>
+where
+    I: DoubleEndedIterator<Item = &'a u16>,
 {
     type Item = u16;
 
@@ -37,15 +42,15 @@ impl<'a, I> Iterator for ReverseUtf16Iterator<'a, I>
         } else {
             if let Some(chr) = self.it.next() {
                 if let Some(next_chr) = self.it.next() {
-                  if (next_chr >= &&0xD800u16) && (next_chr <= &&0xDFFFu16) {
-                      self.nx = Some(*chr);
-                      Some(*next_chr)
-                  } else {
-                      self.nx = Some(*next_chr);
-                      Some(*chr)
-                  }
+                    if (next_chr >= &&0xD800u16) && (next_chr <= &&0xDFFFu16) {
+                        self.nx = Some(*chr);
+                        Some(*next_chr)
+                    } else {
+                        self.nx = Some(*next_chr);
+                        Some(*chr)
+                    }
                 } else {
-                  Some(*chr)
+                    Some(*chr)
                 }
             } else {
                 None
@@ -54,9 +59,9 @@ impl<'a, I> Iterator for ReverseUtf16Iterator<'a, I>
     }
 }
 
-
 pub fn reverse_iter<'a, I>(it: I) -> ReverseUtf16Iterator<'a, I>
-    where I: DoubleEndedIterator<Item = &'a u16>
+where
+    I: DoubleEndedIterator<Item = &'a u16>,
 {
     ReverseUtf16Iterator::new(it)
 }

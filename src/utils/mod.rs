@@ -7,27 +7,28 @@
 // according to those terms.
 
 use std::path::Path;
-use std::ffi::OsStr;
 use std::iter::Iterator;
+use std::ascii::AsciiExt;
 
+#[cfg(windows)]
 pub mod utf16;
 
 /// Determine if an os string ends with any of the given extensions (case insensitive).
 pub fn path_has_any_extension<'a, I>(path: &Path, exts: I) -> bool
-    where I: 'a + IntoIterator<Item = &'a String>
+where
+    I: 'a + IntoIterator<Item = &'a String>,
 {
     #[cfg(unix)]
     {
         use std::os::unix::ffi::OsStrExt;
-        exts.into_iter()
-            .any(|x| {
-                path.as_os_str()
-                    .as_bytes()
-                    .iter()
-                    .rev()
-                    .zip(x.as_bytes().iter().rev())
-                    .all(|(a, b)| a.eq_ignore_ascii_case(&b))
-            })
+        exts.into_iter().any(|x| {
+            path.as_os_str()
+                .as_bytes()
+                .iter()
+                .rev()
+                .zip(x.as_bytes().iter().rev())
+                .all(|(a, b)| a.eq_ignore_ascii_case(&b))
+        })
     }
 
     #[cfg(windows)]
@@ -37,14 +38,10 @@ pub fn path_has_any_extension<'a, I>(path: &Path, exts: I) -> bool
 
         if let Some(os_str) = path.file_name() {
             let utf16_vec: Vec<u16> = os_str.encode_wide().collect();
-            exts.into_iter()
-                .any(|x| {
-                    decode_utf16(utf16::reverse_iter(utf16_vec.iter()))
-                        .zip(x.chars().rev())
-                        .all(|(a, b)| {
-                            a.map(|c| c.eq_ignore_ascii_case(&b))
-                                .unwrap_or(false)
-                        })
+            exts.into_iter().any(|x| {
+                decode_utf16(utf16::reverse_iter(utf16_vec.iter()))
+                    .zip(x.chars().rev())
+                    .all(|(a, b)| a.map(|c| c.eq_ignore_ascii_case(&b)).unwrap_or(false))
             })
         } else {
             false
