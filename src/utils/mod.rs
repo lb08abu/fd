@@ -8,6 +8,9 @@
 
 use std::path::Path;
 use std::iter::Iterator;
+
+// TODO: remove these two lines when we drop support for Rust version < 1.23.
+#[allow(unused_imports)]
 use std::ascii::AsciiExt;
 
 #[cfg(windows)]
