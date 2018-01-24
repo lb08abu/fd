@@ -537,6 +537,12 @@ fn test_extension() {
     te2.assert_output(&["--extension", "sig"], "yolk.bar.baz.sig");
 
     te2.assert_output(&["--extension", "bar.baz.sig"], "yolk.bar.baz.sig");
+
+    let te3 = TestEnv::new(&[], &["latin1.éxt", "smiley.☻"]);
+
+    te3.assert_output(&["--extension", "☻"], "smiley.☻");
+
+    te3.assert_output(&["--extension", ".éxt"], "latin1.éxt");
 }
 
 /// Symlinks misc
