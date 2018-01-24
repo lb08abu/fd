@@ -8,12 +8,15 @@
 
 use std::iter::{Peekable, Rev};
 
+/// An reverse iterator producing a UTF-16 string with characters in reverse order.
 #[derive(Debug)]
 pub struct ReverseUtf16Iterator<'a, I>
 where
     I: 'a + DoubleEndedIterator<Item = &'a u16>,
 {
+    /// The actual reversed u16 iterator.
     it: Peekable<Rev<I>>,
+    /// The next u16 to yield, if any.
     nx: Option<u16>,
 }
 
@@ -42,6 +45,9 @@ where
         } else {
             if let Some(chr) = self.it.next() {
                 if let Some(next_chr) = self.it.next() {
+                    // Check if the next word is in the Basic Multilingual Plane,
+                    // or in a Supplementary Plane, in which case the high
+                    // surrogate must be yielded before the low surrogate.
                     if (next_chr >= &&0xD800u16) && (next_chr <= &&0xDFFFu16) {
                         self.nx = Some(*chr);
                         Some(*next_chr)
