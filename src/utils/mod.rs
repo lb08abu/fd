@@ -9,45 +9,52 @@
 use std::path::Path;
 use std::iter::Iterator;
 
-// TODO: remove these two lines when we drop support for Rust version < 1.23.
-#[allow(unused_imports)]
-use std::ascii::AsciiExt;
-
-#[cfg(windows)]
-pub mod utf16;
-
 /// Determine if an os string ends with any of the given extensions (case insensitive).
 pub fn path_has_any_extension<'a, I>(path: &Path, exts: I) -> bool
 where
     I: 'a + IntoIterator<Item = &'a String>,
 {
-    #[cfg(unix)]
-    {
-        use std::os::unix::ffi::OsStrExt;
-        exts.into_iter().any(|x| {
-            path.as_os_str()
-                .as_bytes()
-                .iter()
-                .rev()
-                .zip(x.as_bytes().iter().rev())
-                .all(|(a, b)| a.eq_ignore_ascii_case(&b))
-        })
-    }
+    _path_has_any_extension(path, exts)
+}
 
-    #[cfg(windows)]
-    {
-        use std::os::windows::ffi::OsStrExt;
-        use std::char::decode_utf16;
+#[cfg(all(unix, not(target_os = "macos")))]
+fn _path_has_any_extension<'a, I>(path: &Path, exts: I) -> bool
+where
+    I: 'a + IntoIterator<Item = &'a String>,
+{
+    use std::os::unix::ffi::OsStrExt;
+    // TODO: remove these two lines when we drop support for Rust version < 1.23.
+    #[allow(unused_imports)]
+    use std::ascii::AsciiExt;
 
-        if let Some(os_str) = path.file_name() {
-            let utf16_vec: Vec<u16> = os_str.encode_wide().collect();
-            exts.into_iter().any(|x| {
-                decode_utf16(utf16::reverse_iter(utf16_vec.iter()))
-                    .zip(x.chars().rev())
-                    .all(|(a, b)| a.map(|c| c.eq_ignore_ascii_case(&b)).unwrap_or(false))
-            })
+    exts.into_iter().any(|x| {
+        let mut it = path.as_os_str().as_bytes().iter().rev();
+
+        if x.as_bytes()
+            .iter()
+            .rev()
+            .zip(&mut it)
+            .all(|(a, b)| a.eq_ignore_ascii_case(&b))
+        {
+            match it.next() {
+                Some(&b'/') | None => false,
+                _ => true,
+            }
         } else {
             false
         }
+    })
+}
+
+#[cfg(any(target_os = "macos", windows))]
+fn _path_has_any_extension<'a, I>(path: &Path, exts: I) -> bool
+where
+    I: 'a + IntoIterator<Item = &'a String>,
+{
+    if let Some(os_str) = path.file_name() {
+        let name = os_str.to_string_lossy().to_lowercase();
+        exts.into_iter().any(|x| name.ends_with(x) && &name != x)
+    } else {
+        false
     }
 }
