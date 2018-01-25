@@ -543,6 +543,10 @@ fn test_extension() {
     te3.assert_output(&["--extension", "☻"], "smiley.☻");
 
     te3.assert_output(&["--extension", ".éxt"], "latin1.éxt");
+
+    let te4 = TestEnv::new(&[], &[".hidden", "test.hidden"]);
+
+    te4.assert_output(&["--hidden", "--extension", ".hidden"], "test.hidden");
 }
 
 /// Symlinks misc
