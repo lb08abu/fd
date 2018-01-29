@@ -46,13 +46,32 @@ where
     })
 }
 
-#[cfg(any(target_os = "macos", windows))]
+#[cfg(windows)]
 fn _path_has_any_extension<'a, I>(path: &Path, exts: I) -> bool
 where
     I: 'a + IntoIterator<Item = &'a String>,
 {
     if let Some(os_str) = path.file_name() {
         let name = os_str.to_string_lossy().to_lowercase();
+        exts.into_iter().any(|x| name.ends_with(x) && &name != x)
+    } else {
+        false
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn _path_has_any_extension<'a, I>(path: &Path, exts: I) -> bool
+where
+    I: 'a + IntoIterator<Item = &'a String>,
+{
+    use unicode_normalization::UnicodeNormalization;
+
+    if let Some(os_str) = path.file_name() {
+        let name = os_str
+            .to_string_lossy()
+            .to_lowercase()
+            .nfc()
+            .collect::<String>();
         exts.into_iter().any(|x| name.ends_with(x) && &name != x)
     } else {
         false

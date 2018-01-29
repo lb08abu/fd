@@ -18,6 +18,8 @@ extern crate libc;
 extern crate num_cpus;
 extern crate regex;
 extern crate regex_syntax;
+#[cfg(target_os = "macos")]
+extern crate unicode_normalization;
 
 pub mod fshelper;
 pub mod lscolors;

@@ -52,6 +52,9 @@ libc = "0.2"
 kernel32-sys = "0.2"
 winapi = "0.2"
 
+[target.'cfg(target_os = "macos")'.dependencies]
+unicode-normalization = "0.1.5"
+
 [dev-dependencies]
 diff = "0.1"
 tempdir = "0.3"
